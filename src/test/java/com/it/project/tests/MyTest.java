@@ -6,9 +6,8 @@ import org.testng.annotations.Test;
 public class MyTest extends BaseTest {
 
     @Test
-    public void test()  {
-    app.login.login("ittest2", "337774a");
-    Assert.assertEquals(app.dashBoard.getLbEmail(), "ittest2@i.ua");
+    public void test() {
+        Assert.assertTrue(app.login(validUser));
     }
 
 
