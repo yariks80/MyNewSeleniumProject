@@ -1,8 +1,10 @@
 package com.it.project.driver;
 
+import com.it.project.common.Constants;
 import io.qameta.allure.Allure;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,17 +12,24 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static com.it.project.common.Constants.BASE_WAIT;
 
 public class MyDriver implements WebDriver {
     private WebDriver driver;
     private static int count;
+    private WebDriverWait wait;
 
     private static MyDriver myDriver;
 
     private MyDriver() {
         this.driver = DriverFactory.getDriver();
+        wait= new WebDriverWait(driver, Duration.ofSeconds(BASE_WAIT));
+
     }
 
     public static MyDriver getMyDriver() {
@@ -117,5 +126,27 @@ public class MyDriver implements WebDriver {
             //NOP
         }
         count++;
+    }
+    public void scrollToElement(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public boolean isElementPresent(By locator) {
+        boolean result = false;
+        driver.manage().timeouts().
+                implicitlyWait(0, TimeUnit.SECONDS);
+        try {
+            List<WebElement> list = driver.findElements(locator);
+            driver.manage().timeouts().
+                    implicitlyWait(Constants.BASE_WAIT, TimeUnit.SECONDS);
+            result = list.size() != 0 && list.get(0).isDisplayed();
+        } catch (StaleElementReferenceException | NoSuchElementException e) {
+            //NOP
+        }
+        return result;
     }
 }
